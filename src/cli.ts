@@ -8,6 +8,11 @@ import { GameCommand } from './commands/game';
 import { BuildCommand } from './commands/build';
 import { DeployCommand } from './commands/deploy';
 import { ConfigCommand } from './commands/config';
+import { IdManagementCommand } from './commands/id-management';
+import { GuildCommand } from './commands/guild';
+import { AssetCommand } from './commands/asset';
+import { AdCommand } from './commands/ad';
+import { AnalyticsCommand } from './commands/analytics';
 
 const program = new Command();
 
@@ -38,6 +43,11 @@ new GameCommand().register(program);
 new BuildCommand().register(program);
 new DeployCommand().register(program);
 new ConfigCommand().register(program);
+new IdManagementCommand().register(program);
+new GuildCommand().register(program);
+new AssetCommand().register(program);
+new AdCommand().register(program);
+new AnalyticsCommand().register(program);
 
 // Global error handler
 program.exitOverride();
