@@ -17,6 +17,50 @@ export interface MintAssetOptions {
   file: string;
 }
 
+export interface Erc20Token {
+  contractAddress: string;
+  name: string;
+  symbol: string;
+  decimals: number;
+  totalSupply: string;
+  transactionHash: string;
+}
+
+export interface Erc20Options {
+  name: string;
+  symbol: string;
+  decimals: number;
+  totalSupply: string;
+}
+
+export interface Erc721Collection {
+  contractAddress: string;
+  name: string;
+  symbol: string;
+  baseUri?: string;
+  transactionHash: string;
+}
+
+export interface Erc721Options {
+  name: string;
+  symbol: string;
+  baseUri?: string;
+}
+
+export interface Erc721Nft {
+  tokenId: string;
+  contractAddress: string;
+  owner: string;
+  metadataUri?: string;
+  transactionHash: string;
+}
+
+export interface MintErc721Options {
+  contractAddress: string;
+  toAddress: string;
+  metadataUri?: string;
+}
+
 export class AssetService {
   private authService = new AuthService();
   private ipfs = ipfsHttpClient({ url: 'https://ipfs.io' });
@@ -76,6 +120,99 @@ export class AssetService {
       await client.post(`/v1/assets/${assetId}/burn`);
     } catch (error: any) {
       throw new Error(`Failed to burn asset: ${error.response?.data?.message || error.message}`);
+    }
+  }
+
+  async issueErc20(options: Erc20Options): Promise<Erc20Token> {
+    const client = this.authService.getAuthenticatedClient();
+    try {
+      const response = await client.post('/v1/tokens/erc20/issue', {
+        name: options.name,
+        symbol: options.symbol,
+        decimals: options.decimals,
+        totalSupply: options.totalSupply
+      });
+      return response.data;
+    } catch (error: any) {
+      throw new Error(`Failed to issue ERC20 token: ${error.response?.data?.message || error.message}`);
+    }
+  }
+
+  async issueErc721(options: Erc721Options): Promise<Erc721Collection> {
+    const client = this.authService.getAuthenticatedClient();
+    try {
+      const response = await client.post('/v1/tokens/erc721/issue', {
+        name: options.name,
+        symbol: options.symbol,
+        baseUri: options.baseUri
+      });
+      return response.data;
+    } catch (error: any) {
+      throw new Error(`Failed to issue ERC721 collection: ${error.response?.data?.message || error.message}`);
+    }
+  }
+
+  async mintErc721(options: MintErc721Options): Promise<Erc721Nft> {
+    const client = this.authService.getAuthenticatedClient();
+    try {
+      const response = await client.post('/v1/tokens/erc721/mint', {
+        contractAddress: options.contractAddress,
+        toAddress: options.toAddress,
+        metadataUri: options.metadataUri
+      });
+      return response.data;
+    } catch (error: any) {
+      throw new Error(`Failed to mint ERC721 NFT: ${error.response?.data?.message || error.message}`);
+    }
+  }
+
+  async getErc20Token(contractAddress: string): Promise<Erc20Token> {
+    const client = this.authService.getAuthenticatedClient();
+    try {
+      const response = await client.get(`/v1/tokens/erc20/${contractAddress}`);
+      return response.data;
+    } catch (error: any) {
+      throw new Error(`Failed to get ERC20 token: ${error.response?.data?.message || error.message}`);
+    }
+  }
+
+  async getErc721Collection(contractAddress: string): Promise<Erc721Collection> {
+    const client = this.authService.getAuthenticatedClient();
+    try {
+      const response = await client.get(`/v1/tokens/erc721/${contractAddress}`);
+      return response.data;
+    } catch (error: any) {
+      throw new Error(`Failed to get ERC721 collection: ${error.response?.data?.message || error.message}`);
+    }
+  }
+
+  async getErc721Token(contractAddress: string, tokenId: string): Promise<Erc721Nft> {
+    const client = this.authService.getAuthenticatedClient();
+    try {
+      const response = await client.get(`/v1/tokens/erc721/${contractAddress}/${tokenId}`);
+      return response.data;
+    } catch (error: any) {
+      throw new Error(`Failed to get ERC721 token: ${error.response?.data?.message || error.message}`);
+    }
+  }
+
+  async listErc20Tokens(): Promise<Erc20Token[]> {
+    const client = this.authService.getAuthenticatedClient();
+    try {
+      const response = await client.get('/v1/tokens/erc20');
+      return response.data.tokens || [];
+    } catch (error: any) {
+      throw new Error(`Failed to list ERC20 tokens: ${error.response?.data?.message || error.message}`);
+    }
+  }
+
+  async listErc721Collections(): Promise<Erc721Collection[]> {
+    const client = this.authService.getAuthenticatedClient();
+    try {
+      const response = await client.get('/v1/tokens/erc721');
+      return response.data.collections || [];
+    } catch (error: any) {
+      throw new Error(`Failed to list ERC721 collections: ${error.response?.data?.message || error.message}`);
     }
   }
 }
